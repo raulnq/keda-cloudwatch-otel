@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyWebApi", "MyWebApi\MyWebApi.csproj", "{DC31E02A-2E73-44C9-B093-951ADDDE4122}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E3254C8-B4B4-4F8B-9CA1-27CE8C34C449}"
+	ProjectSection(SolutionItems) = preProject
+		gateway.yaml = gateway.yaml
+		load.js = load.js
+		main.tf = main.tf
+		sidecar.yaml = sidecar.yaml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC31E02A-2E73-44C9-B093-951ADDDE4122}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC31E02A-2E73-44C9-B093-951ADDDE4122}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC31E02A-2E73-44C9-B093-951ADDDE4122}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC31E02A-2E73-44C9-B093-951ADDDE4122}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7BE88B1C-B1AB-45A5-8C5A-E5C069CE7D9F}
+	EndGlobalSection
+EndGlobal

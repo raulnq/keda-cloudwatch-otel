@@ -9,9 +9,13 @@
 *.user
 *.userosscache
 *.sln.docstates
-
+.terraform/
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+*.hcl
+*.tfplan
+*.tfstate
+*.backup
 
 # Mono auto generated files
 mono_crash.*

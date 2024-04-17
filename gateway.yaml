@@ -1,0 +1,135 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+ name: mywebapi-sa
+ annotations:
+   eks.amazonaws.com/role-arn: arn:aws:iam::<MY_ACCOUNT_ID>:role/myrole
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-deployment
+  labels:
+    app: otel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel
+  template:
+    metadata:
+      labels:
+        app: otel
+    spec:
+      serviceAccountName: mywebapi-sa
+      containers:
+        - name: container
+          image: amazon/aws-otel-collector:latest
+          ports:
+            - name: http
+              containerPort: 4318
+              protocol: TCP
+            - name: grpc
+              containerPort: 4317
+              protocol: TCP
+          env:
+            - name: AWS_REGION
+              value: <MY_REGION>
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 250m
+              memory: 250Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-service
+  labels:
+    app: otel
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4318
+      targetPort: 4318
+      protocol: TCP
+      name: http
+    - port: 4317
+      targetPort: 4317
+      protocol: TCP
+      name: grpc
+  selector:
+    app: otel
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mywebapi-deployment
+  labels:
+    app: mywebapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mywebapi
+  template:
+    metadata:
+      labels:
+        app: mywebapi
+    spec:
+      serviceAccountName: mywebapi-sa
+      containers:
+        - name: api-container
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ASPNETCORE_HTTP_PORTS
+              value: '80'
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://otel-service:4318
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: http/protobuf
+          image: <MY_ACCOUNT_ID>.dkr.ecr.<MY_REGION>.amazonaws.com/myrepository:1.0
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mywebapi-service
+  labels:
+    app: mywebapi
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: mywebapi
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: mywebapi-scaledobject
+spec:
+  scaleTargetRef:
+    name: mywebapi-deployment
+    kind: Deployment
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  triggers:
+  - type: aws-cloudwatch
+    metadata:
+      namespace: MyWebApi
+      expression: SELECT AVG("http.server.active_requests") FROM MyWebApi
+      targetMetricValue: "2"
+      minMetricValue: "0"
+      awsRegion: "us-east-2"
+      identityOwner: operator
